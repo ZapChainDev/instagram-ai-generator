@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Captions & Hashtags</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded-xl shadow-md w-full max-w-3xl">
+        <h1 class="text-2xl font-bold text-center text-gray-700 mb-4">Saved Captions & Hashtags</h1>
+
+        <table class="w-full border-collapse border border-gray-300">
+            <thead class="bg-gray-200">
+                <tr>
+                    <th class="border border-gray-300 p-2">Topic</th>
+                    <th class="border border-gray-300 p-2">Caption</th>
+                    <th class="border border-gray-300 p-2">Hashtags</th>
+                    <th class="border border-gray-300 p-2">Model Used</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white">
+                {% for item in captions %}
+                <tr class="hover:bg-gray-100">
+                    <td class="border border-gray-300 p-2">{{ item.topic }}</td>
+                    <td class="border border-gray-300 p-2">{{ item.caption }}</td>
+                    <td class="border border-gray-300 p-2">{{ item.hashtags }}</td>
+                    <td class="border border-gray-300 p-2 text-blue-600 font-semibold">{{ item.model }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="mt-6 flex justify-between">
+            <a href="/" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold">
+                Back to Generator
+            </a>
+            <a href="/download_csv" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold">
+                Download CSV
+            </a>
+        </div>
+    </div>
+</body>
+</html>
