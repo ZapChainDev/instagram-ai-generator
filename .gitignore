@@ -1,2 +1,5 @@
 .env
+PEXELS_API_KEY=lz7a3aOc6TjmvuOCWTd5uGX6T6TYHrcSD5LQwlmTM3JsqMFJ6kdjfk0l
+ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/21702036/2wtore4/
+
 .env
