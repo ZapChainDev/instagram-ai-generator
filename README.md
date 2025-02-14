@@ -1,4 +1,4 @@
-📸 AI Instagram Caption & Image Generator 🚀
+📸 AI Caption & Image Generator 🚀
 Generate engaging captions and hashtags for Instagram posts using AI!
 🎨 Fetch AI-generated images based on your topic and seamlessly integrate with Zapier and Buffer.
 
