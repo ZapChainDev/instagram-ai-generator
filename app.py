@@ -7,8 +7,8 @@ import subprocess
 app = Flask(__name__)
 
 # ✅ Pexels API for AI-Generated Images
-PEXELS_API_KEY = "lz7a3aOc6TjmvuOCWTd5uGX6T6TYHrcSD5LQwlmTM3JsqMFJ6kdjfk0l"
-PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search"
+PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+ZAPIER_WEBHOOK_URL = os.getenv("ZAPIER_WEBHOOK_URL")
 
 # ✅ Zapier Webhook for Auto-Posting to Buffer
 ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/21702036/2wtore4/"
