@@ -6,14 +6,17 @@ import subprocess
 
 app = Flask(__name__)
 
-# ✅ Use your real Pexels API key
+# ✅ Pexels API for AI-Generated Images
 PEXELS_API_KEY = "lz7a3aOc6TjmvuOCWTd5uGX6T6TYHrcSD5LQwlmTM3JsqMFJ6kdjfk0l"
 PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search"
 
-# List of available Ollama models
+# ✅ Zapier Webhook for Auto-Posting to Buffer
+ZAPIER_WEBHOOK_URL = "https://hooks.zapier.com/hooks/catch/21702036/2wtore4/"
+
+# ✅ AI Models Available
 AVAILABLE_MODELS = ["mistral", "gemma", "llama3"]
 
-# Function to generate captions using Ollama
+# ✅ Function to generate Instagram captions
 def generate_instagram_caption(topic, model):
     prompt = f"Generate a catchy Instagram caption for a post about {topic}. Make it engaging, under 150 characters, and include emojis."
     
@@ -31,7 +34,7 @@ def generate_instagram_caption(topic, model):
         print("Ollama subprocess error:", str(e))
         return "Error: Ollama AI not responding"
 
-# Function to generate hashtags using Ollama
+# ✅ Function to generate hashtags
 def generate_hashtags(topic, model):
     prompt = f"Suggest 5 trending Instagram hashtags related to {topic}. Only provide the hashtags, separated by spaces."
 
@@ -49,14 +52,57 @@ def generate_hashtags(topic, model):
         print("Ollama subprocess error:", str(e))
         return "Error: Ollama AI not responding"
 
-# Function to save data in a CSV file
+# ✅ Function to save captions in CSV
 def save_to_csv(topic, caption, hashtags, model):
     file_path = "captions.csv"
     with open(file_path, mode="a", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
         writer.writerow([topic, caption, hashtags, model])
-    print(f"Saved to {file_path}")
+    print(f"✅ Saved to {file_path}")
 
+# ✅ Function to fetch direct image URLs from Pexels API
+def generate_ai_images(topic):
+    headers = {"Authorization": PEXELS_API_KEY}
+    params = {"query": topic, "per_page": 3}  # Fetch 3 images
+
+    try:
+        response = requests.get(PEXELS_SEARCH_URL, headers=headers, params=params)
+        data = response.json()
+
+        # Debugging Output: Print full Pexels response
+        print("📸 Pexels API Response:", data)
+
+        if "photos" in data and len(data["photos"]) > 0:
+            image_urls = [img["src"]["large"] for img in data["photos"]]  # Using "large" for quality
+            print("🖼 Retrieved Image URLs:", image_urls)  # Debugging
+            return image_urls
+        else:
+            print("🚫 No images found for topic:", topic)
+            return []
+
+    except Exception as e:
+        print(f"❌ Pexels API Error: {str(e)}")
+        return []
+
+
+
+
+# ✅ Function to send data to Zapier for auto-posting to Buffer (Now sending a single valid image)
+def send_to_zapier(caption, hashtags, images):
+    first_image = images[0] if images else ""  # Use first image or empty string if none
+    payload = {
+        "text": f"{caption}\n\n{hashtags}",
+        "media": first_image  # Buffer only accepts a single image
+    }
+    response = requests.post(ZAPIER_WEBHOOK_URL, json=payload)
+    print(f"📡 Sent to Zapier: {payload}")
+    print(f"📡 Zapier Response Code: {response.status_code}")
+    print(f"📡 Zapier Response: {response.text}")
+    return response.status_code == 200  # Returns True if successful
+
+
+
+# ✅ Routes
 @app.route('/')
 def index():
     return render_template('index.html', models=AVAILABLE_MODELS)
@@ -65,18 +111,22 @@ def index():
 def generate():
     data = request.json
     topic = data.get("topic")
-    model = data.get("model", "mistral")  # Default to 'mistral' if no model is selected
+    model = data.get("model", "mistral")  # Default to 'mistral'
 
     if not topic:
         return jsonify({"error": "Topic is required"}), 400
 
     caption = generate_instagram_caption(topic, model)
     hashtags = generate_hashtags(topic, model)
+    images = generate_ai_images(topic)  # Fetch AI images
 
-    # Save to CSV file
+    # ✅ Send data to Zapier for auto-posting to Buffer
+    zapier_success = send_to_zapier(caption, hashtags, images)
+
+    # ✅ Save to CSV
     save_to_csv(topic, caption, hashtags, model)
 
-    return jsonify({"caption": caption, "hashtags": hashtags})
+    return jsonify({"caption": caption, "hashtags": hashtags, "images": images, "zapier_success": zapier_success})
 
 @app.route('/captions')
 def show_captions():
@@ -101,26 +151,6 @@ def download_csv():
 
     return send_file(file_path, as_attachment=True, download_name="captions.csv", mimetype="text/csv")
 
-# ✅ Function to fetch AI-generated images from Pexels API
-def generate_ai_images(topic):
-    headers = {"Authorization": PEXELS_API_KEY}
-    params = {"query": topic, "per_page": 3}  # Fetch 3 images
-
-    try:
-        response = requests.get(PEXELS_SEARCH_URL, headers=headers, params=params)
-        data = response.json()
-
-        if "photos" in data and len(data["photos"]) > 0:
-            image_urls = [img["src"]["medium"] for img in data["photos"]]
-            return image_urls
-        else:
-            print("No images found for topic:", topic)
-            return []
-
-    except Exception as e:
-        print(f"Pexels API Error: {str(e)}")
-        return []
-
 @app.route('/generate_images', methods=['POST'])
 def generate_images():
     data = request.json
@@ -132,5 +162,6 @@ def generate_images():
     image_urls = generate_ai_images(topic)
     return jsonify({"images": image_urls})
 
+# ✅ Run Flask app
 if __name__ == "__main__":
     app.run(debug=True)
