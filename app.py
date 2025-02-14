@@ -8,6 +8,7 @@ app = Flask(__name__)
 
 # ✅ Pexels API for AI-Generated Images
 PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+PEXELS_SEARCH_URL = "https://api.pexels.com/v1/search"
 ZAPIER_WEBHOOK_URL = os.getenv("ZAPIER_WEBHOOK_URL")
 
 # ✅ Zapier Webhook for Auto-Posting to Buffer
